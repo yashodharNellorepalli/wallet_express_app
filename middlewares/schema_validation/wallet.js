@@ -8,7 +8,7 @@ const schemaValidationWalletSetup = [
     .isLength({min: NAME_MIN_LENGTH, max: NAME_MAX_LENGTH}).withMessage(`name must be within ${NAME_MIN_LENGTH} to ${NAME_MAX_LENGTH} characters long`),
     body('balance')
     .exists().withMessage('balance is required')
-    .isInt().withMessage('balance must be integer')
+    .isNumeric().withMessage('balance must be Numeric')
     .custom(value => {
         const isBalanceNonNegative = value >= 0;
         if (!isBalanceNonNegative) {
