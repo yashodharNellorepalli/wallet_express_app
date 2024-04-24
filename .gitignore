@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# debug log files
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# code coverage reports
+coverage/
+
+# compiled and bundled code
+dist/
+build/
+
+# temporary files
+temp/
+
+# log files
+logs/
+
+# environment variables and configuration settings
+.env
+.env.local
+.env.production
+.env.test
+
+# Visual Studio Code settings and configurations
+.vscode/
+
+# versioned snapshot of the package dependencies
+package-lock.json
+yarn.lock
