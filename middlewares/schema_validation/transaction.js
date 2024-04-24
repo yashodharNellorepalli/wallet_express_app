@@ -1,14 +1,15 @@
 const {body, param, query} = require('express-validator');
+const {DESCRIPTION_MIN_LENGTH, DESCRIPTION_MAX_LENGTH} = require('../../utils/constants.js');
 
 
 const schemaValidationTransactionCreate = [
     body('amount')
-    .exists().withMessage('balance is required')
-    .isInt().withMessage('balance must be integer'),
+    .exists().withMessage('amount is required')
+    .isNumeric().withMessage('amount must be float'),
     body('description')
     .exists().withMessage('name is required')
     .isString().withMessage('name must be a string')
-    .isLength({min: 5, max: 500}).withMessage('name must be within 5 to 500 characters long'),
+    .isLength({min: DESCRIPTION_MIN_LENGTH, max: DESCRIPTION_MAX_LENGTH}).withMessage(`name must be within ${DESCRIPTION_MIN_LENGTH} to ${DESCRIPTION_MAX_LENGTH} characters long`),
     param('walletId')
     .exists().withMessage('walletId is required')
     .isString().withMessage('walletId must be String'),

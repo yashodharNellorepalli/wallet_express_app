@@ -1,17 +1,17 @@
 const {Schema, model} = require('mongoose');
 const {balance} = require('./columns');
-const {CREDIT, DEBIT} = require('../utils/constants');
+const {CREDIT, DEBIT, AMOUNT_PRECISION, MODEL_WALLET, MODEL_TRANSACTION} = require('../utils/constants');
 
 const TransactionSchema = new Schema({
   wallet: {
     type: Schema.Types.ObjectId,
-    ref: 'Wallet',
+    ref: MODEL_WALLET,
     required: true
   },
   amount: {
     type: Number,
     required: true,
-    precision: 4
+    precision: AMOUNT_PRECISION
   },
   balance: balance,
   description: {
@@ -25,4 +25,4 @@ const TransactionSchema = new Schema({
   },
 }, { timestamps: true });
 
-module.exports = model('Transaction', TransactionSchema);
+module.exports = model(MODEL_TRANSACTION, TransactionSchema);

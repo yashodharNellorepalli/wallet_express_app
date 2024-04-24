@@ -1,14 +1,15 @@
 const {Schema, model} = require('mongoose');
 const {balance} = require('./columns');
+const {MODEL_WALLET, NAME_MIN_LENGTH, NAME_MAX_LENGTH} = require('../utils/constants');
 
 const WalletSchema = new Schema({
   name: {
     type: String,
     required: true,
-    maxLength: 1,
-    maxLength: 100
+    maxLength: NAME_MIN_LENGTH,
+    maxLength: NAME_MAX_LENGTH
   },
   balance: balance,
 }, { timestamps: true });
 
-module.exports = model('Wallet', WalletSchema);
+module.exports = model(MODEL_WALLET, WalletSchema);

@@ -1,53 +1,53 @@
+const mongoose = require('mongoose');
 const WalletModel = require('../models/wallet');
 const TransactionModel = require('../models/transaction');
 const {getTransactionType} = require('../utils/helpers.js');
+const {SuccessOkResponse, UnprocessedResponse, InternalServerErrorResponse} = require('../utils/responses.js');
+const {WALLET_NOT_FOUND, INSUFFICIENT_FUNDS} = require('../utils/errors.js');
+const {DESC_CREATED_AT} = require('../utils/constants.js');
 
 
 const createTransaction = async (req, res, next) => {
     const {payload} = req;
     const {walletId, amount, description} = payload;
+    const wallet = await WalletModel.findById(walletId);
+
+    if (!wallet) {
+        return new UnprocessedResponse(WALLET_NOT_FOUND).sendResponse(res);
+    }
+
+    const newBalance = wallet.balance + amount;
+    if (newBalance < 0) {
+        return new UnprocessedResponse(INSUFFICIENT_FUNDS).sendResponse(res);
+    }
+
     const transactionType = getTransactionType(amount);
-    await WalletModel.findById(walletId)
-    .then(async (wallet) => {
-        const newBalance = wallet.balance + amount;
-        const transactionModel = new TransactionModel({
+    const session = await mongoose.startSession(); // Start a new session
+    session.startTransaction();
+    try {
+        await wallet.updateOne({ $inc: { balance: amount } }, { session });
+
+        const transaction = new TransactionModel({
             wallet: walletId, 
             amount: amount, 
             balance: newBalance, 
             description: description,
             type: transactionType
         });
-        await transactionModel.save()
-        .then(async (transaction) =>{
-            await WalletModel.findOneAndUpdate(
-                {
-                    _id: walletId
-                },
-                {
-                    $inc: {
-                        balance: amount
-                    }
-                },
-                { 
-                    new: true 
-                }
-            );
-            res.send({
-                balance: transaction.balance,
-                transactionId: transaction._id
-            })
-        }).catch(async err => {
-            res.status(422).json({
-                error: err
-            });
-        });
-    })
-    .catch((err) => {
-        res.status(422).json({
-            error: err.message
-        });
-    });
-};
+
+        await transaction.save({ session });
+        await session.commitTransaction();
+        session.endSession();
+        return new SuccessOkResponse({ 
+            balance: newBalance, 
+            transactionId: transaction._id 
+        }).sendResponse(res);
+    } catch (err) {
+        await session.abortTransaction();
+        session.endSession();
+        return new InternalServerErrorResponse(err.message).sendResponse(res);
+    }
+}
 
 const getTransactionsList = async (req, res, next) => {
     const {payload} = req;
@@ -56,11 +56,10 @@ const getTransactionsList = async (req, res, next) => {
     .find({
         wallet: walletId
     })
-    .sort('-createdAt')
+    .sort(DESC_CREATED_AT)
     .skip(skip)
     .limit(limit)
     .then((transactions) => {
-        console.log(`transactions: ${transactions}`);
         res.send(
             transactions.map((transaction) => {
                 return {
@@ -76,9 +75,7 @@ const getTransactionsList = async (req, res, next) => {
         ); 
     })
     .catch((err) => {
-        res.status(422).json({
-            error: err.message
-        });
+        return new UnprocessedResponse(err.message).sendResponse(res);
     });
 };
 

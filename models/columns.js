@@ -1,4 +1,5 @@
 const {nonNegative} = require('../utils/helpers');
+const {AMOUNT_PRECISION} = require('../utils/constants');
 
 const balance = {
     type: Number,
@@ -8,7 +9,7 @@ const balance = {
       validator: nonNegative,
       message: 'Balance must be greater than or equal to zero.'
     },
-    precision: 4
+    precision: AMOUNT_PRECISION
 };
 
 module.exports = {
