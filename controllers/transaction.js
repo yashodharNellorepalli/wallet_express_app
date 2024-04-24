@@ -1,13 +1,12 @@
 const WalletModel = require('../models/wallet');
 const TransactionModel = require('../models/transaction');
-const {CREDIT, DEBIT} = require('../utils/constants');
-
-const getTransactionType = amount => amount >=0 ? CREDIT : DEBIT;
+const {getTransactionType} = require('../utils/helpers.js');
 
 
 const createTransaction = async (req, res, next) => {
     const {payload} = req;
     const {walletId, amount, description} = payload;
+    const transactionType = getTransactionType(amount);
     await WalletModel.findById(walletId)
     .then(async (wallet) => {
         const newBalance = wallet.balance + amount;
@@ -16,7 +15,7 @@ const createTransaction = async (req, res, next) => {
             amount: amount, 
             balance: newBalance, 
             description: description,
-            type: getTransactionType(amount)
+            type: transactionType
         });
         await transactionModel.save()
         .then(async (transaction) =>{

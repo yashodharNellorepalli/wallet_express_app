@@ -1,9 +1,12 @@
 const WalletModel = require('../models/wallet');
 const TransactionModel = require('../models/transaction');
+const {getTransactionType} = require('../utils/helpers.js');
+const {SETUP_WALLET} = require('../utils/constants.js');
 
 const createWallet = async (req, res, next) => {
     const {payload} = req;
     const {name, balance} = payload;
+    const transactionType = getTransactionType(balance);
     const walletModel = new WalletModel({name, balance});
     await walletModel.save()
     .then(async (wallet) => {
@@ -11,7 +14,8 @@ const createWallet = async (req, res, next) => {
             wallet: wallet._id, 
             amount: balance,
             balance: balance,
-            description: 'SetUp transaction'
+            description: SETUP_WALLET,
+            type: transactionType
         });
         await transactionModel.save()
         .then(async (transaction) => {
@@ -19,7 +23,8 @@ const createWallet = async (req, res, next) => {
                 id: wallet._id,
                 balance: wallet.balance,
                 name: wallet.name,
-                date: wallet.createdAt
+                date: wallet.createdAt,
+                type: transactionType
             });
         })
         .catch(async (err) => {
