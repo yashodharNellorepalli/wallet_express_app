@@ -203,27 +203,12 @@ GET /wallet/1243434
 }
 ```
 
-Running the tests
------------------
-
-To run the tests, execute the following command:
-
-```
-npm test
-```
-
 Deployment
 ----------
 
-To deploy the application, follow these steps:
+Deployed the application in render.com, please use the following domain for API requests:
 
-1. Build the application:
-
-   ```
-   npm run build
-   ```
-
-2. Deploy the built files to your hosting service.
+DOMAIN: https://wallet-express-app.onrender.com
 
 Built With
 ----------
