@@ -1,5 +1,8 @@
 const WalletModel = require('../models/wallet');
 const TransactionModel = require('../models/transaction');
+const {CREDIT, DEBIT} = require('../utils/constants');
+
+const getTransactionType = amount => amount >=0 ? CREDIT : DEBIT;
 
 
 const createTransaction = async (req, res, next) => {
@@ -12,7 +15,8 @@ const createTransaction = async (req, res, next) => {
             wallet: walletId, 
             amount: amount, 
             balance: newBalance, 
-            description: description
+            description: description,
+            type: getTransactionType(amount)
         });
         await transactionModel.save()
         .then(async (transaction) =>{
@@ -31,7 +35,7 @@ const createTransaction = async (req, res, next) => {
             );
             res.send({
                 balance: transaction.balance,
-                transaction_id: transaction._id
+                transactionId: transaction._id
             })
         }).catch(async err => {
             res.status(422).json({
@@ -62,11 +66,12 @@ const getTransactionsList = async (req, res, next) => {
             transactions.map((transaction) => {
                 return {
                     id: transaction._id,
-                    wallet_id: walletId,
+                    walletId: walletId,
                     amount: transaction.amount,
                     balance: transaction.balance,
                     description: transaction.description,
-                    date: transaction.createdAt
+                    date: transaction.createdAt,
+                    type: transaction.type
                 }
             })
         ); 

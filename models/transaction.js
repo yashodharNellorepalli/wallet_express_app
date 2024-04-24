@@ -1,5 +1,6 @@
 const {Schema, model} = require('mongoose');
 const {balance} = require('./columns');
+const {CREDIT, DEBIT} = require('../utils/constants');
 
 const TransactionSchema = new Schema({
   wallet: {
@@ -16,7 +17,12 @@ const TransactionSchema = new Schema({
   description: {
     type: String,
     required: true
-  }
+  },
+  type: {
+    type: String,
+    enum: [CREDIT, DEBIT],
+    required: true
+  },
 }, { timestamps: true });
 
 module.exports = model('Transaction', TransactionSchema);
