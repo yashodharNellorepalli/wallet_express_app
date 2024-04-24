@@ -7,10 +7,8 @@ var setUpRouter = require('./routes/setup.js');
 var transactRouter = require('./routes/transact.js');
 var transactionsRouter = require('./routes/transactions.js');
 var walletRouter = require('./routes/wallet.js');
-const connect_mongo = require('./databases/mongoDB.js');
 
 var app = express();
-connect_mongo();
 
 app.use(logger('dev'));
 app.use(express.json());
